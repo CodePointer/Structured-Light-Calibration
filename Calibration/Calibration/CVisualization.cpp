@@ -13,10 +13,11 @@ CVisualization::~CVisualization()
 	destroyWindow(this->m_winName);
 }
 
-int CVisualization::Show(Mat pic, int time, bool norm)
+int CVisualization::Show(cv::Mat pic, int time, bool norm, double zoom)
 {
 	Mat show;
-	pic.copyTo(show);
+	Size showSize = Size(pic.size().width*zoom, pic.size().height*zoom);
+	resize(pic, show, showSize);
 	
 	// 需要标准归一化的情况
 	if (norm)

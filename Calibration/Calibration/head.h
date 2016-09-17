@@ -73,7 +73,7 @@ private:
 public:
 	CVisualization(std::string winName);
 	~CVisualization();
-	int Show(cv::Mat pic, int time, bool norm = false);
+	int Show(cv::Mat pic, int time, bool norm = false, double zoom = 1.0);
 };
 
 // 格雷码解码器。解码已经编写好的格雷码。
@@ -91,7 +91,6 @@ private:
 	int resLine;			// 图像的列分辨率
 	bool m_vertical;		// 设定格雷码方向
 
-	cv::Mat m_camPicture;	// 摄像机原图
 	cv::Mat * m_grePicture;	// 输入的灰度图
 	cv::Mat * m_binPicture;	// 加工后的二值图
 	cv::Mat m_result;		// 结果
@@ -99,7 +98,7 @@ private:
 	CVisualization * m_visual;	// 用于显示中间结果
 
 	bool AllocateSpace();		// 为输入的矩阵、short类型内容申请空间
-	bool DeleteSpace();			// 删除所有空间
+	bool ReleaseSpace();		// 删除所有空间
 	bool Grey2Bin();			// 将灰度图加工为二值图，以便进一步处理
 	bool CountResult();			// 根据二值图统计结果
 	bool Visualize();			// 显示中间结果
@@ -111,7 +110,6 @@ public:
 	bool Decode();
 	cv::Mat GetResult();
 
-	bool SetCamMat(cv::Mat pic);							// 输入相应的相机图片
 	bool SetMat(int num, cv::Mat pic);						// 输入相应灰度图
 	bool SetNumDigit(int numDigit, bool ver);				// 设置格雷码位数
 	bool SetMatFileName(std::string codeFilePath,
@@ -163,11 +161,21 @@ private:
 	int m_chessLine;
 	int m_chessRow;
 	int m_chessNum;
-	// 识别出的棋盘格及其坐标
+	// 采集到的棋盘格图像和识别结果
 	cv::Mat m_chessMat;
+	cv::Mat * m_grayV;
+	cv::Mat * m_grayH;
+	cv::Mat * m_phaseV;
+	cv::Mat * m_phaseH;
+	cv::Mat m_chessMatDraw;
+	cv::Mat m_proMatDraw;
+	//棋盘格顺序编号
 	std::vector<std::vector<cv::Point2f>> m_camPoint;
+	std::vector<cv::Point2f> m_camPointTmp;
 	std::vector<std::vector<cv::Point2f>> m_proPoint;
-	std::vector<std::vector<cv::Point3f>> m_objPoint;//棋盘格顺序编号
+	std::vector<cv::Point2f> m_proPointTmp;
+	std::vector<std::vector<cv::Point3f>> m_objPoint;
+	std::vector<cv::Point3f> m_objPointTmp;
 	// 标定的矩阵
 	cv::Mat m_camMatrix;
 	cv::Mat m_camDisCoeffs;
@@ -182,6 +190,7 @@ private:
 	bool RecoChessPointObj(int frameIdx);		// 填充m_objPoint
 	bool RecoChessPointCam(int frameIdx);		// 填充m_camPoint
 	bool RecoChessPointPro(int frameIdx);		// 填充m_proPoint
+	bool PushChessPoint(int frameIdx);			// 保存棋盘格，存储到本地
 public:
 	CCalibration();
 	~CCalibration();

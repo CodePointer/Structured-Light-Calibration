@@ -20,14 +20,7 @@ CDecode_Gray::CDecode_Gray()
 // 析构函数。确保释放空间。
 CDecode_Gray::~CDecode_Gray()
 {
-	this->DeleteSpace();
-}
-
-// 输入相应的相机视图
-bool CDecode_Gray::SetCamMat(cv::Mat pic)
-{
-	pic.copyTo(this->m_camPicture);
-	return true;
+	this->ReleaseSpace();
 }
 
 // 输入相应灰度图
@@ -56,7 +49,7 @@ bool CDecode_Gray::SetNumDigit(int numDigit, bool ver)
 
 	// 分配相应空间
 	if ((this->m_gray2bin != NULL) || (this->m_grePicture != NULL) || (this->m_binPicture != NULL))
-		this->DeleteSpace();
+		this->ReleaseSpace();
 	this->AllocateSpace();
 
 	return true;
@@ -82,14 +75,14 @@ bool CDecode_Gray::AllocateSpace()
 
 	// 申请空间并初始化
 	this->m_gray2bin = new short[this->m_grayCodeSize];
-	this->m_grePicture = new Mat[this->m_grayCodeSize];
-	this->m_binPicture = new Mat[this->m_grayCodeSize];
+	this->m_grePicture = new Mat[this->m_numDigit * 2];
+	this->m_binPicture = new Mat[this->m_numDigit];
 
 	return true;
 }
 
 // 删除所有空间
-bool CDecode_Gray::DeleteSpace()
+bool CDecode_Gray::ReleaseSpace()
 {
 	if (this->m_gray2bin != NULL)
 	{
@@ -209,7 +202,7 @@ bool CDecode_Gray::CountResult()
 			}
 			this->m_result.at<short>(i, j) = this->m_gray2bin[grayCode] * pixPeriod;
 		}
-	}
+	}// 最后，每个区间的值都是最左侧/最上侧的值
 	return true;
 }
 
