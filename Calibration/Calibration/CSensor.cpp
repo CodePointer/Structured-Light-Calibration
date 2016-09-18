@@ -1,7 +1,5 @@
-#include "head.h"
-#include <strstream>
-using namespace cv;
-using namespace std;
+#include "CSensor.h"
+
 
 // 传感器模块。
 // 用于模拟传感器传入数据。

@@ -18,9 +18,6 @@
     <ClCompile Include="CCalibration.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CDecode_Gray.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CSensor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -33,12 +30,45 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CDecode_Phase.cpp">
+    <ClCompile Include="StaticParameters.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalFunction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDecodeGray.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDecodePhase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="head.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CCalibration.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSensor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CStorage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CVisualization.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticParameters.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalFunction.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CDecodeGray.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CDecodePhase.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

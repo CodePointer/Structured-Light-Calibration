@@ -1,8 +1,4 @@
-#include "head.h"
-#include <direct.h>
-#include <strstream>
-using namespace cv;
-using namespace std;
+#include "CCalibration.h"
 
 CVisualization myCamera("Camera");
 //CVisualization myDebug("Debug");

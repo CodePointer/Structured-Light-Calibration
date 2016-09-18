@@ -1,5 +1,4 @@
-#include "head.h"
-#include <strstream>
+#include "CStorage.h"
 
 CStorage::CStorage()
 {
@@ -14,9 +13,8 @@ CStorage::~CStorage()
 
 }
 
-bool CStorage::Store(cv::Mat * pictures, int num)
+bool CStorage::Store(Mat * pictures, int num)
 {
-	using namespace cv;
 
 	// 判断参数是否合法
 	if (num <= 0)
@@ -101,11 +99,10 @@ bool CStorage::Store(cv::Mat * pictures, int num)
 }
 
 // 设定存储目录
-bool CStorage::SetMatFileName(std::string matFilePath,
-	std::string matFileName,
-	std::string matFileSuffix)
+bool CStorage::SetMatFileName(string matFilePath,
+	string matFileName,
+	string matFileSuffix)
 {
-	using namespace std;
 
 	// 变更参数
 	this->m_matFilePath = matFilePath;

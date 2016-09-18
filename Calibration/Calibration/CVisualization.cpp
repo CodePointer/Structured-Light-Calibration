@@ -1,6 +1,4 @@
-#include "head.h"
-using namespace std;
-using namespace cv;
+#include "CVisualization.h"
 
 CVisualization::CVisualization(string winName)
 {
@@ -13,7 +11,7 @@ CVisualization::~CVisualization()
 	destroyWindow(this->m_winName);
 }
 
-int CVisualization::Show(cv::Mat pic, int time, bool norm, double zoom)
+int CVisualization::Show(Mat pic, int time, bool norm, double zoom)
 {
 	Mat show;
 	Size showSize = Size(pic.size().width*zoom, pic.size().height*zoom);

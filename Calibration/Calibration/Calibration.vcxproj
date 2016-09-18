@@ -20,15 +20,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CCalibration.cpp" />
-    <ClCompile Include="CDecode_Gray.cpp" />
-    <ClCompile Include="CDecode_Phase.cpp" />
+    <ClCompile Include="CDecodeGray.cpp" />
+    <ClCompile Include="CDecodePhase.cpp" />
     <ClCompile Include="CSensor.cpp" />
     <ClCompile Include="CStorage.cpp" />
     <ClCompile Include="CVisualization.cpp" />
+    <ClCompile Include="GlobalFunction.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="StaticParameters.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CCalibration.h" />
+    <ClInclude Include="CDecodeGray.h" />
+    <ClInclude Include="CDecodePhase.h" />
+    <ClInclude Include="CSensor.h" />
+    <ClInclude Include="CStorage.h" />
+    <ClInclude Include="CVisualization.h" />
+    <ClInclude Include="GlobalFunction.h" />
     <ClInclude Include="head.h" />
+    <ClInclude Include="StaticParameters.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{052E7A99-25E4-4A60-9D38-E08C5E0D274E}</ProjectGuid>

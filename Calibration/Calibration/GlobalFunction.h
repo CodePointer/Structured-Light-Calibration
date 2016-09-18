@@ -1,0 +1,11 @@
+#ifndef _GLOBAL_FUNCTION_
+#define _GLOBAL_FUNCTION_
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+// ´íÎó´¦Àíº¯Êý
+int ErrorHandling(string message);
+
+#endif
