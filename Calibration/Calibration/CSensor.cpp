@@ -53,7 +53,7 @@ bool CSensor::SetChessFrame(int frame)
 }
 
 // 获取相机图像。
-cv::Mat CSensor::GetCamFrame()
+Mat CSensor::GetCamFrame()
 {
 	Mat tempMat;
 	tempMat = imread(this->m_chessFilePath
@@ -83,7 +83,7 @@ int CSensor::GetPicNum(int patternIdx)
 }
 
 // 获取投影仪图像
-cv::Mat CSensor::GetProFrame(int patternIdx, int picIdx)
+Mat CSensor::GetProFrame(int patternIdx, int picIdx)
 {
 	// 确保参数合法
 	if ((patternIdx < 0) || (patternIdx>=4))

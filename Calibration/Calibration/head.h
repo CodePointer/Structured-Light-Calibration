@@ -1,12 +1,12 @@
+#ifndef _HEAD_H_
+#define _HEAD_H_
+
 // OpenCV
 #include <opencv2/opencv.hpp>
 
 // 其他常用库
 #include <vector>
 #include <direct.h>
-
-#define VISUAL_DEBUG false
-#define CHESS_FRAME_NUMBER 15
 
 // 一些常量
 #include "StaticParameters.h"
@@ -35,3 +35,5 @@
 // 标定类。用于标定摄像头、投影仪。
 // 其中会引用摄像头和投影仪的控制，并创建两个解码器进行解码。
 #include "CCalibration.h"
+
+#endif

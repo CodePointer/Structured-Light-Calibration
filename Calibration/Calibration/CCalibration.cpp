@@ -73,8 +73,8 @@ bool CCalibration::Init()
 		return false;
 
 	this->m_sensor = new CSensor;
-	this->m_decodeGray = new CDecode_Gray;
-	this->m_decodePS = new CDecode_Phase;
+	this->m_decodeGray = new CDecodeGray;
+	this->m_decodePS = new CDecodePhase;
 	this->m_chessLine = 9;
 	this->m_chessRow = 6;
 	this->m_chessNum = CHESS_FRAME_NUMBER;

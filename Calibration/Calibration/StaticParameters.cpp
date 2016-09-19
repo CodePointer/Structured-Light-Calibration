@@ -19,4 +19,5 @@ const int PHASE_NUMDIGIT = 4;
 
 // 默认Visual图片的持续时间
 const int SHOW_PICTURE_TIME = 500;		// 默认Visual图片的持续时间
-const int VISUAL_DEBUG = false;
+const bool VISUAL_DEBUG = false;
+const bool CHESS_FRAME_NUMBER = 15;

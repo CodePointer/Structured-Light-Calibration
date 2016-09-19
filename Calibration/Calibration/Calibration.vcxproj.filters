@@ -18,9 +18,6 @@
     <ClCompile Include="CCalibration.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CSensor.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CStorage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -42,15 +39,21 @@
     <ClCompile Include="CDecodePhase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CSensor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CCamera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CProjector.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="head.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CCalibration.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CSensor.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CStorage.h">
@@ -69,6 +72,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CDecodePhase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSensor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CCamera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CProjector.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

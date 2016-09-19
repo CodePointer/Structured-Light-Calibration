@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CCalibration.cpp" />
+    <ClCompile Include="CCamera.cpp" />
     <ClCompile Include="CDecodeGray.cpp" />
     <ClCompile Include="CDecodePhase.cpp" />
+    <ClCompile Include="CProjector.cpp" />
     <ClCompile Include="CSensor.cpp" />
     <ClCompile Include="CStorage.cpp" />
     <ClCompile Include="CVisualization.cpp" />
@@ -31,8 +33,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCalibration.h" />
+    <ClInclude Include="CCamera.h" />
     <ClInclude Include="CDecodeGray.h" />
     <ClInclude Include="CDecodePhase.h" />
+    <ClInclude Include="CProjector.h" />
     <ClInclude Include="CSensor.h" />
     <ClInclude Include="CStorage.h" />
     <ClInclude Include="CVisualization.h" />
@@ -80,6 +84,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="opencv_x64d.props" />
+    <Import Project="HVCamera_x64.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -87,6 +92,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="opencv_x64.props" />
+    <Import Project="HVCamera_x64.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />

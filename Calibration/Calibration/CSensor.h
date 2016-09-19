@@ -1,16 +1,17 @@
 #ifndef _CSENSOR_H_
 #define _CSENSOR_H_
 
-#include "head.h"
-
 #include <string>
 #include <opencv2/opencv.hpp>
 #include <strstream>
+#include "StaticParameters.h"
+#include "GlobalFunction.h"
+#include "CStorage.h"
 
 using namespace std;
 using namespace cv;
 
-// 传感器模块。模拟
+// 传感器模块。
 class CSensor
 {
 private:

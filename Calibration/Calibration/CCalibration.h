@@ -1,5 +1,5 @@
-#ifndef _CDecodePhase_H_
-#define _CDecodePhase_H_
+#ifndef _CCALIBRATION_H_
+#define _CCALIBRATION_H_
 
 #include <opencv2/opencv.hpp>
 

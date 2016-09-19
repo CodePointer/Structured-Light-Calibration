@@ -1,9 +1,11 @@
 #ifndef _CSTORAGE_H_
 #define _CSTORAGE_H_
 
+#include <iostream>
 #include <string>
 #include <strstream>
 #include <opencv2\opencv.hpp>
+#include "GlobalFunction.h"
 using namespace std;
 using namespace cv;
 

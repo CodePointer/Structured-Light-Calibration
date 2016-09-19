@@ -21,5 +21,6 @@ extern const int PHASE_NUMDIGIT;
 // 默认Visual图片的持续时间
 extern const int SHOW_PICTURE_TIME;
 extern const bool VISUAL_DEBUG;
+extern const bool CHESS_FRAME_NUMBER;
 
 #endif

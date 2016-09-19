@@ -31,8 +31,8 @@ bool CStorage::Store(Mat * pictures, int num)
 		ss >> IdxtoStr;
 
 		status = imwrite(
-			this->m_matFilePath 
-			+ this->SetMatFileName 
+			this->m_matFilePath	
+			+ this->m_matFileName 
 			+ IdxtoStr 
 			+ this->m_matFileSuffix,
 			pictures[i]);
@@ -40,15 +40,15 @@ bool CStorage::Store(Mat * pictures, int num)
 		{
 			// ´´½¨Ä¿Â¼
 			string temp = this->m_matFilePath;
-			for (int i = 0; i < temp.length(); i++)
+			for (int x = 0; x < temp.length(); x++)
 			{
-				if (temp[i] == '/')
-					temp[i] = '\\';
+				if (temp[x] == '/')
+					temp[x] = '\\';
 			}
 			system((string("mkdir ") + temp).c_str());
 			status = imwrite(
 				this->m_matFilePath 
-				+ this->SetMatFileName 
+				+ this->m_matFileName
 				+ IdxtoStr 
 				+ this->m_matFileSuffix,
 				pictures[i]);

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 #include "CVisualization.h"
+#include "StaticParameters.h"
 #include "GlobalFunction.h"
 
 using namespace std;
