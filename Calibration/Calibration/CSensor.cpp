@@ -7,112 +7,159 @@
 
 CSensor::CSensor()
 {
-	this->m_frameNum = CHESS_FRAME_NUMBER;
-	this->m_ProPicNum[0] = GRAY_V_NUMDIGIT * 2;
-	this->m_ProPicNum[1] = GRAY_H_NUMDIGIT * 2;
-	this->m_ProPicNum[2] = PHASE_NUMDIGIT;
-	this->m_ProPicNum[3] = PHASE_NUMDIGIT;
+	this->m_patterns = NULL;
+	this->m_patternNum = 0;
+	this->m_nowNum = 0;
+	this->m_filePath = "";
+	this->m_fileName = "";
+	this->m_fileSuffix = "";
 
-	this->m_chessFilePath = "Chess_20160227/";
-	this->m_chessFileFrameNum = "0";
-	this->m_chessFileCamPath = "";
-	this->m_chessFileCamName = "CameraMat";
-	
-	this->m_chessFileProPath[0] = "Gray_v/";
-	this->m_chessFileProPath[1] = "Gray_h/";
-	this->m_chessFileProPath[2] = "Phase_v/";
-	this->m_chessFileProPath[3] = "Phase_h/";
-	this->m_chessFileProName[0] = "GrayMat";
-	this->m_chessFileProName[1] = "GrayMat";
-	this->m_chessFileProName[2] = "PhaseMat";
-	this->m_chessFileProName[3] = "PhaseMat";
-
-	this->m_chessFileSuffix = ".bmp";
+	this->m_camera = NULL;
+	this->m_projector = NULL;
 }
 
 CSensor::~CSensor()
 {
+	if (this->m_patterns != NULL)
+	{
+		delete[]this->m_patterns;
+		this->m_patterns = NULL;
+	}
+	if (this->m_camera != NULL)
+	{
+		delete[]this->m_camera;
+		this->m_camera = NULL;
+	}
+	if (this->m_projector != NULL)
+	{
+		delete[]this->m_projector;
+		this->m_projector = NULL;
+	}
+}
+
+// 初始化传感器
+// 创建Camera、Projector并进行初始化
+bool CSensor::InitSensor()
+{
+	bool status;
+
+	this->m_camera = new CCamera();
+	status = this->m_camera->InitCamera();
+
+	this->m_projector = new CProjector();
+	status = this->m_projector->InitProjector();
 
 }
 
-// 设置当前标定的帧数。
-// 设定之后才能进行读取。默认是从0开始。
-bool CSensor::SetChessFrame(int frame)
+// 关闭传感器
+bool CSensor::CloseSensor()
 {
-	// 判断参数是否合法
-	if ((frame<0) || (frame >= this->m_frameNum))
+	bool status = true;
+
+	if (this->m_camera != NULL)
 	{
-		ErrorHandling("SetChessFrame->int frame is not valid");
+		this->m_camera->CloseCamera();
+		delete[]this->m_camera;
+		this->m_camera = NULL;
+	}
+	if (this->m_projector != NULL)
+	{
+		delete[]this->m_projector;
+		this->m_projector = NULL;
+	}
+	this->UnloadPatterns();
+
+	return status;
+}
+
+// 读取图案
+bool CSensor::LoadPatterns(int patternNum, string filePath, string fileName, string fileSuffix)
+{
+	// 检查状态是否合法
+	if (this->m_patterns != NULL)
+	{
 		return false;
 	}
 
-	strstream ss;
-	ss << frame+1 << '/';
-	ss >> this->m_chessFileFrameNum;
+	// 设置参数，申请空间
+	this->m_patternNum = patternNum;
+	this->m_nowNum = 0;
+	this->m_filePath = filePath;
+	this->m_fileName = fileName;
+	this->m_fileSuffix = fileSuffix;
+	this->m_patterns = new Mat[this->m_patternNum];
+
+	// 读取
+	for (int i = 0; i < patternNum; i++)
+	{
+		Mat tempMat;
+		string idx2Str;
+		strstream ss;
+		ss << i << '/';
+		ss >> idx2Str;
+		tempMat = imread(this->m_filePath
+			+ this->m_fileName
+			+ idx2Str
+			+ this->m_fileSuffix, CV_LOAD_IMAGE_GRAYSCALE);
+		tempMat.copyTo(this->m_patterns[i]);
+
+		if (tempMat.empty())
+		{
+			ErrorHandling("CSensor::LoadPatterns::<Read>, imread error, idx=" + idx2Str);
+		}
+	}
+}
+
+// 释放已读取图案
+bool CSensor::UnloadPatterns()
+{
+	if (this->m_patterns != NULL)
+	{
+		delete[]this->m_patterns;
+		this->m_patterns = NULL;
+	}
+	this->m_patternNum = 0;
+	this->m_nowNum = 0;
+	this->m_filePath = "";
+	this->m_fileName = "";
+	this->m_fileSuffix = "";
+
 	return true;
 }
 
-// 获取相机图像。
-Mat CSensor::GetCamFrame()
+// 设置投影仪投影的图像
+bool CSensor::SetProPicture(int nowNum)
 {
-	Mat tempMat;
-	tempMat = imread(this->m_chessFilePath
-		+ this->m_chessFileFrameNum
-		+ this->m_chessFileCamPath
-		+ this->m_chessFileCamName
-		+ this->m_chessFileSuffix, CV_LOAD_IMAGE_GRAYSCALE);
-	Mat convertMat;
-	tempMat.copyTo(convertMat);
-	//resize(tempMat, convertMat, Size(CAMERA_RESLINE, CAMERA_RESROW));
-	if (tempMat.empty())
+	bool status = true;
+
+	// 检查参数是否合法
+	if (nowNum >= this->m_patternNum)
 	{
-		ErrorHandling("GetCamFrame->imread error.");
+		status = false;
+		return status;
 	}
-	return convertMat;
+
+	this->m_nowNum = nowNum;
+
+	status = this->m_projector->presentPicture(
+		this->m_patterns[this->m_nowNum], 50);
+
+	return status;
 }
 
-// 获取投影仪图案的总数
-int CSensor::GetPicNum(int patternIdx)
+// 获取相机图像
+Mat CSensor::GetCamPicture()
 {
-	if ((patternIdx < 0) || (patternIdx>=4))
-	{
-		ErrorHandling("GetPicNum->Parameter Error.");
-		return false;
-	}
-	return this->m_ProPicNum[patternIdx];
+	bool status = true;
+
+	Mat tempMat;
+	status = this->m_camera->getPicture(tempMat);
+
+	return tempMat;
 }
 
-// 获取投影仪图像
-Mat CSensor::GetProFrame(int patternIdx, int picIdx)
+// 获取投影仪投影的图像
+Mat CSensor::GetProPicture()
 {
-	// 确保参数合法
-	if ((patternIdx < 0) || (patternIdx>=4))
-	{
-		ErrorHandling("CSensor.GetProFrame-> <patternIdx> Parameter Error.");
-	}
-	if ((picIdx < 0) || (picIdx>=this->m_ProPicNum[patternIdx]))
-	{
-		ErrorHandling("CSensor.GetProFrame-> <picIdx> Parameter Error.");
-	}
-
-	// 读取
-	strstream ss;
-	string picNum;
-	ss << picIdx;
-	ss >> picNum;
-	Mat tempMat;
-	tempMat = imread(this->m_chessFilePath
-		+ this->m_chessFileFrameNum
-		+ this->m_chessFileProPath[patternIdx]
-		+ this->m_chessFileProName[patternIdx]
-		+ picNum
-		+ this->m_chessFileSuffix, CV_LOAD_IMAGE_GRAYSCALE);
-	Mat convertMat;
-	tempMat.copyTo(convertMat);
-	resize(tempMat, convertMat, Size(CAMERA_RESLINE, CAMERA_RESROW));
-	if (tempMat.empty())
-	{
-		ErrorHandling("GetProFrame->imread error.");
-	}
-	return convertMat;
+	return this->m_patterns[this->m_nowNum];
 }

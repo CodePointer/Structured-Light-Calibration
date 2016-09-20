@@ -79,6 +79,14 @@ bool CCamera::InitCamera()
 	}
 	this->used = this->BufferNum;
 
+	// 获取部分图像保证稳定
+	int stableNum = 5;
+	Mat tempMat;
+	while (stableNum-- != 0)
+	{
+		this->getPicture(tempMat);
+	}
+
 	return true;
 }
 
