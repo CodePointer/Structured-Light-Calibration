@@ -1,7 +1,7 @@
 #include "CCalibration.h"
 
 CVisualization myCamera("Camera");
-//CVisualization myDebug("Debug");
+CVisualization myDebug("Debug");
 CVisualization myProjector("Projector");
 
 // 构造函数。对一些参数赋初值
@@ -73,10 +73,13 @@ bool CCalibration::Init()
 		return false;
 
 	this->m_sensor = new CSensor;
+	this->m_sensor->InitSensor();
+	this->m_patternPath = "Patterns/";
+
 	this->m_decodeGray = new CDecodeGray;
 	this->m_decodePS = new CDecodePhase;
-	this->m_chessLine = 9;
-	this->m_chessRow = 6;
+	this->m_chessLine = CHESS_LINE;
+	this->m_chessRow = CHESS_ROW;
 	this->m_chessNum = CHESS_FRAME_NUMBER;
 
 	this->m_grayV = new Mat[GRAY_V_NUMDIGIT * 2];
@@ -119,7 +122,7 @@ bool CCalibration::Calibrate()
 		status = this->RecoChessPointPro(i);
 		printf("For %dth picture: ProPoint finished.\n", i+1);
 
-		// 判断识别结果是否正确
+		// 判断识别结果是否正确，如果正确则存储角点信息
 		int key = 0;
 		key = myCamera.Show(this->m_chessMatDraw, 100, false, 0.5);
 		key = myProjector.Show(this->m_proMatDraw, 0, false, 0.5);
@@ -218,15 +221,20 @@ bool CCalibration::RecoChessPointObj(int frameIdx)
 bool CCalibration::RecoChessPointCam(int frameIdx)
 {
 	bool status = true;
+	
+	// 清空原来的角点信息
 	vector<Point2f>().swap(this->m_camPointTmp);
-	this->m_sensor->SetChessFrame(frameIdx);
+
+	// 设定投影仪投影图案
+	this->m_sensor->LoadPatterns(1, this->m_patternPath, "empty", ".bmp");
+	this->m_sensor->SetProPicture(0);
 
 	// 尝试识别角点
 	while (true)
 	{
 		// 获取当前相机帧
 		Mat camMat;
-		camMat = this->m_sensor->GetCamFrame();
+		camMat = this->m_sensor->GetCamPicture();
 		camMat.copyTo(this->m_chessMat);
 		camMat.copyTo(this->m_chessMatDraw);
 
@@ -237,7 +245,7 @@ bool CCalibration::RecoChessPointCam(int frameIdx)
 		while (k++ < maxAttempt)
 		{
 			found = findChessboardCorners(this->m_chessMat, Size(this->m_chessRow, this->m_chessLine), this->m_camPointTmp, CALIB_CB_ADAPTIVE_THRESH + CALIB_CB_NORMALIZE_IMAGE);
-			drawChessboardCorners(this->m_chessMatDraw, Size(this->m_chessRow, this->m_chessLine), this->m_camPointTmp, found);
+			cv::drawChessboardCorners(this->m_chessMatDraw, Size(this->m_chessRow, this->m_chessLine), this->m_camPointTmp, found);
 			if (found)
 			{
 				break;
@@ -265,8 +273,9 @@ bool CCalibration::RecoChessPointCam(int frameIdx)
 bool CCalibration::RecoChessPointPro(int frameIdx)
 {
 	bool status = true;
+
+	// 清空原来的角点信息
 	vector<Point2f>().swap(this->m_proPointTmp);
-	this->m_sensor->SetChessFrame(frameIdx);
 
 	// 根据结构光解码相机视野中每个点的投影仪坐标
 	Mat tempMat;
@@ -276,59 +285,117 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	Mat hPhaseMat;
 	Mat vProjectorMat;
 	Mat hProjectorMat;
-	// Gray_v
+
+	// vGray
+	this->m_sensor->LoadPatterns(GRAY_V_NUMDIGIT, this->m_patternPath, "vGray", ".bmp");
 	this->m_decodeGray->SetNumDigit(GRAY_V_NUMDIGIT, true);
-	this->m_decodeGray->SetMatFileName("Projector/Gray_v/", "GrayCode.txt");
+	this->m_decodeGray->SetMatFileName(this->m_patternPath, "vGrayCode.txt");
 	for (int i = 0; i < GRAY_V_NUMDIGIT * 2; i++)		// Projector
 	{
-		tempMat = this->m_sensor->GetProFrame(0, i);//Gray_v的图片编号为0
+		this->m_sensor->SetProPicture(i);
+		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodeGray->SetMat(i, tempMat);
 	}
+	this->m_sensor->UnloadPatterns();
 	this->m_decodeGray->Decode();
 	vGrayMat = this->m_decodeGray->GetResult();
 
-	// Gray_h
+	// hGray
+	this->m_sensor->LoadPatterns(GRAY_H_NUMDIGIT, this->m_patternPath, "hGray", ".bmp");
 	this->m_decodeGray->SetNumDigit(GRAY_H_NUMDIGIT, false);
-	this->m_decodeGray->SetMatFileName("Projector/Gray_h/", "GrayCode.txt");
+	this->m_decodeGray->SetMatFileName(this->m_patternPath, "vGrayCode.txt");
 	for (int i = 0; i < GRAY_H_NUMDIGIT * 2; i++)		// Projector
 	{
-		tempMat = this->m_sensor->GetProFrame(1, i);//Gray_h的图片编号为1
+		this->m_sensor->SetProPicture(i);
+		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodeGray->SetMat(i, tempMat);
 	}
+	this->m_sensor->UnloadPatterns();
 	this->m_decodeGray->Decode();
 	hGrayMat = this->m_decodeGray->GetResult();
 
-	// Phase_v
+	// vPhase
+	this->m_sensor->LoadPatterns(PHASE_NUMDIGIT, this->m_patternPath, "vPhase", ".bmp");
 	int v_pixPeriod = PROJECTOR_RESLINE / (1 << (GRAY_V_NUMDIGIT - 1));
 	this->m_decodePS->SetNumMat(PHASE_NUMDIGIT, v_pixPeriod);
-	tempMat = this->m_sensor->GetCamFrame();
 	for (int i = 0; i < PHASE_NUMDIGIT; i++)
 	{
-		tempMat = this->m_sensor->GetProFrame(2, i);//Phase_v的图像编号为2
+		this->m_sensor->SetProPicture(i);
+		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodePS->SetMat(i, tempMat);
 	}
+	this->m_sensor->UnloadPatterns();
 	this->m_decodePS->Decode();
 	vPhaseMat = this->m_decodePS->GetResult();
 
-	// Phase_h
+	// hPhase
+	this->m_sensor->LoadPatterns(PHASE_NUMDIGIT, this->m_patternPath, "vPhase", ".bmp");
 	int h_pixPeriod = PROJECTOR_RESROW / (1 << (GRAY_H_NUMDIGIT - 1));
 	this->m_decodePS->SetNumMat(PHASE_NUMDIGIT, h_pixPeriod);
-	tempMat = this->m_sensor->GetCamFrame();
 	for (int i = 0; i < PHASE_NUMDIGIT; i++)
 	{
-		tempMat = this->m_sensor->GetProFrame(3, i);//Phase_h的图像编号为3
+		this->m_sensor->SetProPicture(i);
+		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodePS->SetMat(i, tempMat);
 	}
+	this->m_sensor->UnloadPatterns();
 	this->m_decodePS->Decode();
 	hPhaseMat = this->m_decodePS->GetResult();
 
 	// 合并
+	int vGrayNum = 1 << GRAY_V_NUMDIGIT;
+	int vGrayPeriod = PROJECTOR_RESLINE / vGrayNum;
+	for (int h = 0; h < CAMERA_RESROW; h++)
+	{
+		for (int w = 0; w < CAMERA_RESLINE; w++)
+		{
+			double grayVal = vGrayMat.at<double>(h, w);
+			double phaseVal = vPhaseMat.at<double>(h, w);
+			if ((int)(grayVal / 20) % 2 == 0)
+			{
+				if (phaseVal > (double)v_pixPeriod * 0.75)
+				{
+					vPhaseMat.at<double>(h, w) = phaseVal - v_pixPeriod;
+				}
+			}
+			else
+			{
+				if (phaseVal < (double)v_pixPeriod * 0.25)
+				{
+					vPhaseMat.at<double>(h, w) = phaseVal + v_pixPeriod;
+				}
+			}
+		}
+	}
+	vProjectorMat = vGrayMat + vPhaseMat;
+	int hGrayNum = 1 << GRAY_H_NUMDIGIT;
+	int hGrayPeriod = PROJECTOR_RESLINE / hGrayNum;
+	for (int h = 0; h < CAMERA_RESROW; h++)
+	{
+		for (int w = 0; w < CAMERA_RESLINE; w++)
+		{
+			double grayVal = hGrayMat.at<double>(h, w);
+			double phaseVal = hPhaseMat.at<double>(h, w);
+			if ((int)(grayVal / 20) % 2 == 0)
+			{
+				if (phaseVal >(double)v_pixPeriod * 0.75)
+				{
+					hPhaseMat.at<double>(h, w) = phaseVal - v_pixPeriod;
+				}
+			}
+			else
+			{
+				if (phaseVal < (double)v_pixPeriod * 0.25)
+				{
+					hPhaseMat.at<double>(h, w) = phaseVal + v_pixPeriod;
+				}
+			}
+		}
+	}
+	hProjectorMat = hGrayMat + hPhaseMat;
 
-
-	//vProjectorMat = vGrayMat + vPhaseMat;
-	//hProjectorMat = hGrayMat + hPhaseMat;
-	//myDebug.Show(vProjectorMat, 00, true);
-	//myDebug.Show(hProjectorMat, 00, true);
+	myDebug.Show(vProjectorMat, 00, true, 0.5);
+	myDebug.Show(hProjectorMat, 00, true, 0.5);
 
 	// 将相机格点坐标转换为投影仪格点坐标
 	vector<Point2f>::iterator i;

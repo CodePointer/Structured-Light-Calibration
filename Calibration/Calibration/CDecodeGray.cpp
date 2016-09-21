@@ -178,13 +178,13 @@ bool CDecodeGray::Grey2Bin()
 // 根据二值图统计结果
 bool CDecodeGray::CountResult()
 {
-	int pixPeriod = 0;
+	double pixPeriod = 0;
 	if (this->m_vertical)
 		pixPeriod = PROJECTOR_RESLINE / this->m_grayCodeSize;
 	else
 		pixPeriod = PROJECTOR_RESROW / this->m_grayCodeSize;
 
-	m_result.create(resRow, resLine, CV_16UC1);
+	m_result.create(resRow, resLine, CV_32FC1);
 	for (int i = 0; i < this->resRow; i++)
 	{
 		for (int j = 0; j < this->resLine; j++)
@@ -197,7 +197,7 @@ bool CDecodeGray::CountResult()
 					grayCode += 1 << binIdx;
 				}
 			}
-			this->m_result.at<short>(i, j) = this->m_gray2bin[grayCode] * pixPeriod;
+			this->m_result.at<double>(i, j) = (double)this->m_gray2bin[grayCode] * pixPeriod;
 		}
 	}// 最后，每个区间的值都是最左侧/最上侧的值
 	return true;

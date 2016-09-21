@@ -18,9 +18,13 @@ extern const int GRAY_V_NUMDIGIT;
 extern const int GRAY_H_NUMDIGIT;
 extern const int PHASE_NUMDIGIT;
 
-// 默认Visual图片的持续时间
+// Visualization 相关参数
 extern const int SHOW_PICTURE_TIME;
 extern const bool VISUAL_DEBUG;
+
+// 棋盘格相关参数
 extern const bool CHESS_FRAME_NUMBER;
+extern const int CHESS_LINE;
+extern const int CHESS_ROW;
 
 #endif

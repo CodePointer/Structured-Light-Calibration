@@ -47,7 +47,7 @@ bool CDecodePhase::DeleteSpace()
 // 根据灰度图统计结果
 bool CDecodePhase::CountResult()
 {
-	this->m_result.create(this->m_resRow, this->m_resLine, CV_16UC1);
+	this->m_result.create(this->m_resRow, this->m_resLine, CV_32FC1);
 	Mat SinValue0;
 	Mat SinValue1;
 
@@ -72,7 +72,7 @@ bool CDecodePhase::CountResult()
 			{
 				pix -= this->m_pixPeroid;
 			}
-			this->m_result.at<short>(i, j) = (short)pix;
+			this->m_result.at<double>(i, j) = (double)pix;
 		}
 	}
 

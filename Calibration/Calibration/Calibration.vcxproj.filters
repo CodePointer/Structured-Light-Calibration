@@ -19,32 +19,26 @@
     <Filter Include="源文件\Sensor">
       <UniqueIdentifier>{92d73610-f06b-4157-9a82-73cd55374e03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Deocder">
+      <UniqueIdentifier>{37dea3d7-2e83-4278-9fd4-ef9309ae0b9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Decoder">
+      <UniqueIdentifier>{05ff9849-f111-4028-ab24-b3194c6a53fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Storage&amp;Visualization">
+      <UniqueIdentifier>{c157b921-eb19-4246-98ab-5d106b8327bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Storage&amp;Visualization">
+      <UniqueIdentifier>{750e250d-c339-45f7-8598-0ce6bfce4832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Core">
+      <UniqueIdentifier>{a4112811-1413-4cb2-9c39-fc1fa44f1871}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Core">
+      <UniqueIdentifier>{733e5305-cda8-4beb-84b8-f942b74b4b47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CCalibration.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CStorage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CVisualization.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="StaticParameters.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalFunction.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CDecodeGray.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CDecodePhase.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CSensor.cpp">
       <Filter>源文件\Sensor</Filter>
     </ClCompile>
@@ -54,32 +48,32 @@
     <ClCompile Include="CProjector.cpp">
       <Filter>源文件\Sensor</Filter>
     </ClCompile>
+    <ClCompile Include="CDecodeGray.cpp">
+      <Filter>源文件\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="CDecodePhase.cpp">
+      <Filter>源文件\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="CVisualization.cpp">
+      <Filter>源文件\Storage&amp;Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="CStorage.cpp">
+      <Filter>源文件\Storage&amp;Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="CCalibration.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalFunction.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticParameters.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="head.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CCalibration.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CStorage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CVisualization.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="StaticParameters.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalFunction.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CDecodeGray.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CDecodePhase.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CSensor.h">
       <Filter>头文件\Sensor</Filter>
     </ClInclude>
@@ -88,6 +82,30 @@
     </ClInclude>
     <ClInclude Include="CCamera.h">
       <Filter>头文件\Sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="CDecodeGray.h">
+      <Filter>头文件\Deocder</Filter>
+    </ClInclude>
+    <ClInclude Include="CDecodePhase.h">
+      <Filter>头文件\Deocder</Filter>
+    </ClInclude>
+    <ClInclude Include="CStorage.h">
+      <Filter>头文件\Storage&amp;Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="CVisualization.h">
+      <Filter>头文件\Storage&amp;Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="CCalibration.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalFunction.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="head.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticParameters.h">
+      <Filter>头文件\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

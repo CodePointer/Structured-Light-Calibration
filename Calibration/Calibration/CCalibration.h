@@ -19,6 +19,7 @@ class CCalibration
 private:
 	// 传感器控制类
 	CSensor * m_sensor;
+	string m_patternPath;
 	// 解码器
 	CDecodeGray * m_decodeGray;	// 格雷码解码
 	CDecodePhase * m_decodePS;		// PS解码

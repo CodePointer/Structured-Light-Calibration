@@ -49,6 +49,7 @@ bool CSensor::InitSensor()
 	this->m_projector = new CProjector();
 	status = this->m_projector->InitProjector();
 
+	return status;
 }
 
 // 关闭传感器
@@ -78,7 +79,7 @@ bool CSensor::LoadPatterns(int patternNum, string filePath, string fileName, str
 	// 检查状态是否合法
 	if (this->m_patterns != NULL)
 	{
-		return false;
+		this->UnloadPatterns();
 	}
 
 	// 设置参数，申请空间
@@ -108,6 +109,8 @@ bool CSensor::LoadPatterns(int patternNum, string filePath, string fileName, str
 			ErrorHandling("CSensor::LoadPatterns::<Read>, imread error, idx=" + idx2Str);
 		}
 	}
+
+	return true;
 }
 
 // 释放已读取图案
@@ -142,7 +145,7 @@ bool CSensor::SetProPicture(int nowNum)
 	this->m_nowNum = nowNum;
 
 	status = this->m_projector->presentPicture(
-		this->m_patterns[this->m_nowNum], 50);
+		this->m_patterns[this->m_nowNum], 100);
 
 	return status;
 }

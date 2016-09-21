@@ -17,7 +17,11 @@ const int GRAY_V_NUMDIGIT = 6;
 const int GRAY_H_NUMDIGIT = 5;
 const int PHASE_NUMDIGIT = 4;
 
-// 默认Visual图片的持续时间
-const int SHOW_PICTURE_TIME = 500;		// 默认Visual图片的持续时间
+// Visualization 相关参数
+const int SHOW_PICTURE_TIME = 500;
 const bool VISUAL_DEBUG = false;
+
+// 棋盘格相关参数
 const bool CHESS_FRAME_NUMBER = 15;
+const int CHESS_LINE = 9;
+const int CHESS_ROW = 6;
