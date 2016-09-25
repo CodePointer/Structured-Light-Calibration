@@ -184,7 +184,7 @@ bool CDecodeGray::CountResult()
 	else
 		pixPeriod = PROJECTOR_RESROW / this->m_grayCodeSize;
 
-	m_result.create(resRow, resLine, CV_32FC1);
+	m_result.create(resRow, resLine, CV_64FC1);
 	for (int i = 0; i < this->resRow; i++)
 	{
 		for (int j = 0; j < this->resLine; j++)

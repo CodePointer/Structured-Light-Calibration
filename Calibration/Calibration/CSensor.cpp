@@ -96,12 +96,13 @@ bool CSensor::LoadPatterns(int patternNum, string filePath, string fileName, str
 		Mat tempMat;
 		string idx2Str;
 		strstream ss;
-		ss << i << '/';
+		ss << i ;
 		ss >> idx2Str;
-		tempMat = imread(this->m_filePath
+		string temp = this->m_filePath
 			+ this->m_fileName
 			+ idx2Str
-			+ this->m_fileSuffix, CV_LOAD_IMAGE_GRAYSCALE);
+			+ this->m_fileSuffix;
+		tempMat = imread(temp, CV_LOAD_IMAGE_GRAYSCALE);
 		tempMat.copyTo(this->m_patterns[i]);
 
 		if (tempMat.empty())
@@ -145,7 +146,7 @@ bool CSensor::SetProPicture(int nowNum)
 	this->m_nowNum = nowNum;
 
 	status = this->m_projector->presentPicture(
-		this->m_patterns[this->m_nowNum], 100);
+		this->m_patterns[this->m_nowNum], 200);
 
 	return status;
 }

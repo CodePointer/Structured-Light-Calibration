@@ -16,6 +16,7 @@ int CVisualization::Show(Mat pic, int time, bool norm, double zoom)
 	Mat show;
 	Size showSize = Size(pic.size().width*zoom, pic.size().height*zoom);
 	resize(pic, show, showSize);
+	Mat present;
 	
 	// 需要标准归一化的情况
 	if (norm)
@@ -28,6 +29,10 @@ int CVisualization::Show(Mat pic, int time, bool norm, double zoom)
 			range = 0xff;
 		}
 		else if (show.depth() == CV_16U)
+		{
+			range = 0xffff;
+		}
+		else if (show.depth() == CV_64F)
 		{
 			range = 0xffff;
 		}
@@ -49,6 +54,10 @@ int CVisualization::Show(Mat pic, int time, bool norm, double zoom)
 				{
 					value = show.at<ushort>(i, j);
 				}
+				else if (show.depth() == CV_64F)
+				{
+					value = show.at<double>(i, j);
+				}
 				if (value < min)
 					min = value;
 				if (value > max)
@@ -57,9 +66,31 @@ int CVisualization::Show(Mat pic, int time, bool norm, double zoom)
 		}
 
 		// 归一
-		show = (show - min) / (max - min) * range;
+		present.create(show.size(), CV_8UC1);
+		for (int i = 0; i < show.size().height; i++)
+		{
+			for (int j = 0; j < show.size().width; j++)
+			{
+				if (show.depth() == CV_8U)
+				{
+					present.at<uchar>(i, j) = (show.at<uchar>(i, j) - min) / (max - min) * 0xff;
+				}
+				else if (show.depth() == CV_16U)
+				{
+					present.at<uchar>(i, j) = (show.at<ushort>(i, j) - min) / (max - min) * 0xff;
+				}
+				else if (show.depth() == CV_64F)
+				{
+					present.at<uchar>(i, j) = (show.at<double>(i, j) - min) / (max - min) * 0xff;
+				}
+			}
+		}
+	}
+	else
+	{
+		present = show;
 	}
 
-	imshow(this->m_winName, show);
+	imshow(this->m_winName, present);
 	return waitKey(time);
 }

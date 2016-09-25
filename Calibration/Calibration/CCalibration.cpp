@@ -1,8 +1,8 @@
 #include "CCalibration.h"
 
-CVisualization myCamera("Camera");
-CVisualization myDebug("Debug");
-CVisualization myProjector("Projector");
+//CVisualization myDebug("Debug");
+CVisualization myCamera("CameraShow");
+CVisualization myProjector("ProjectorShow");
 
 // 构造函数。对一些参数赋初值
 CCalibration::CCalibration()
@@ -110,6 +110,23 @@ bool CCalibration::Calibrate()
 	// 识别棋盘格，即填充上述三个Vector
 	for (int i = 0; i < this->m_chessNum; i++)
 	{
+		// 设定投影仪投影图案 empty
+		this->m_sensor->LoadPatterns(1, this->m_patternPath, "empty", ".bmp");
+		this->m_sensor->SetProPicture(0);
+		cout << "Ready for collection. Press 'c'(continue) to continue" << endl;
+		while (true)
+		{
+			Mat camTemp;
+			camTemp = this->m_sensor->GetCamPicture();
+			int key;
+			key = myCamera.Show(camTemp, 100, false, 0.5);
+			if (key == 'c')
+			{
+				break;
+			}
+		}
+		this->m_sensor->UnloadPatterns();
+
 		// 填充ObjPoint；
 		status = this->RecoChessPointObj(i);
 		printf("For %dth picture: ObjPoint finished.\n", i+1);
@@ -129,15 +146,14 @@ bool CCalibration::Calibrate()
 		if (key == 'c')
 		{
 			status = this->PushChessPoint(i);
+			printf("Finish %dth picture.\n", i + 1);
 		}
 		else
 		{
+			printf("Invalid %dth picture. Data discarded.\n", i + 1);
 			i = i - 1;
 			continue;
 		}
-
-		//visual.Show(this->m_chessMat);
-		printf("Finish %dth picture.\n", i+1);
 	}
 
 	// 标定部分
@@ -183,7 +199,7 @@ bool CCalibration::Calibrate()
 // 输出保存数据
 bool CCalibration::Result()
 {
-	FileStorage fs("Result.yml", FileStorage::WRITE);
+	FileStorage fs("CalibrationResult.yml", FileStorage::WRITE);
 	cout << "CamMat" << endl;
 	fs << "CamMat" << this->m_camMatrix;
 	cout << this->m_camMatrix << endl;
@@ -198,6 +214,9 @@ bool CCalibration::Result()
 	cout << this->m_R << endl;
 	cout << this->m_T << endl;
 	fs.release();
+
+	cout << "Calibration Finished. Data was stored at <CalibrationResult.yml>." << endl;
+
 	return true;
 }
 
@@ -225,10 +244,6 @@ bool CCalibration::RecoChessPointCam(int frameIdx)
 	// 清空原来的角点信息
 	vector<Point2f>().swap(this->m_camPointTmp);
 
-	// 设定投影仪投影图案
-	this->m_sensor->LoadPatterns(1, this->m_patternPath, "empty", ".bmp");
-	this->m_sensor->SetProPicture(0);
-
 	// 尝试识别角点
 	while (true)
 	{
@@ -237,23 +252,31 @@ bool CCalibration::RecoChessPointCam(int frameIdx)
 		camMat = this->m_sensor->GetCamPicture();
 		camMat.copyTo(this->m_chessMat);
 		camMat.copyTo(this->m_chessMatDraw);
+		myCamera.Show(this->m_chessMat, 100, false, 0.5);
 
 		// 寻找棋盘格
-		int maxAttempt = 10;
+		int maxAttempt = 1;
 		int k = 0;
 		int found = 0;
 		while (k++ < maxAttempt)
 		{
+			cout << "Searching...";
 			found = findChessboardCorners(this->m_chessMat, Size(this->m_chessRow, this->m_chessLine), this->m_camPointTmp, CALIB_CB_ADAPTIVE_THRESH + CALIB_CB_NORMALIZE_IMAGE);
 			cv::drawChessboardCorners(this->m_chessMatDraw, Size(this->m_chessRow, this->m_chessLine), this->m_camPointTmp, found);
+			myCamera.Show(this->m_chessMatDraw, 100, false, 0.5);
 			if (found)
 			{
+				cout << "Success." << endl;
 				break;
+			}
+			else
+			{
+				cout << "Seaching Failed." << endl;
 			}
 		}
 
 		// 如果成功寻找，则跳出。
-		if (k < maxAttempt)
+		if (k <= maxAttempt)
 		{
 			cornerSubPix(camMat,
 				this->m_camPointTmp,
@@ -287,7 +310,7 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	Mat hProjectorMat;
 
 	// vGray
-	this->m_sensor->LoadPatterns(GRAY_V_NUMDIGIT, this->m_patternPath, "vGray", ".bmp");
+	this->m_sensor->LoadPatterns(GRAY_V_NUMDIGIT * 2, this->m_patternPath, "vGray", ".bmp");
 	this->m_decodeGray->SetNumDigit(GRAY_V_NUMDIGIT, true);
 	this->m_decodeGray->SetMatFileName(this->m_patternPath, "vGrayCode.txt");
 	for (int i = 0; i < GRAY_V_NUMDIGIT * 2; i++)		// Projector
@@ -295,13 +318,14 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 		this->m_sensor->SetProPicture(i);
 		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodeGray->SetMat(i, tempMat);
+		tempMat.copyTo(this->m_grayV[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodeGray->Decode();
 	vGrayMat = this->m_decodeGray->GetResult();
 
 	// hGray
-	this->m_sensor->LoadPatterns(GRAY_H_NUMDIGIT, this->m_patternPath, "hGray", ".bmp");
+	this->m_sensor->LoadPatterns(GRAY_H_NUMDIGIT * 2, this->m_patternPath, "hGray", ".bmp");
 	this->m_decodeGray->SetNumDigit(GRAY_H_NUMDIGIT, false);
 	this->m_decodeGray->SetMatFileName(this->m_patternPath, "vGrayCode.txt");
 	for (int i = 0; i < GRAY_H_NUMDIGIT * 2; i++)		// Projector
@@ -309,6 +333,7 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 		this->m_sensor->SetProPicture(i);
 		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodeGray->SetMat(i, tempMat);
+		tempMat.copyTo(this->m_grayH[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodeGray->Decode();
@@ -323,13 +348,14 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 		this->m_sensor->SetProPicture(i);
 		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodePS->SetMat(i, tempMat);
+		tempMat.copyTo(this->m_phaseV[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodePS->Decode();
 	vPhaseMat = this->m_decodePS->GetResult();
 
 	// hPhase
-	this->m_sensor->LoadPatterns(PHASE_NUMDIGIT, this->m_patternPath, "vPhase", ".bmp");
+	this->m_sensor->LoadPatterns(PHASE_NUMDIGIT, this->m_patternPath, "hPhase", ".bmp");
 	int h_pixPeriod = PROJECTOR_RESROW / (1 << (GRAY_H_NUMDIGIT - 1));
 	this->m_decodePS->SetNumMat(PHASE_NUMDIGIT, h_pixPeriod);
 	for (int i = 0; i < PHASE_NUMDIGIT; i++)
@@ -337,12 +363,18 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 		this->m_sensor->SetProPicture(i);
 		tempMat = this->m_sensor->GetCamPicture();
 		this->m_decodePS->SetMat(i, tempMat);
+		tempMat.copyTo(this->m_phaseH[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodePS->Decode();
 	hPhaseMat = this->m_decodePS->GetResult();
 
 	// 合并
+	/*myProjector.Show(vGrayMat, 0, true, 0.5);
+	myProjector.Show(hGrayMat, 0, true, 0.5);
+	myProjector.Show(vPhaseMat, 0, true, 0.5);
+	myProjector.Show(hPhaseMat, 0, true, 0.5);*/
+
 	int vGrayNum = 1 << GRAY_V_NUMDIGIT;
 	int vGrayPeriod = PROJECTOR_RESLINE / vGrayNum;
 	for (int h = 0; h < CAMERA_RESROW; h++)
@@ -351,7 +383,7 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 		{
 			double grayVal = vGrayMat.at<double>(h, w);
 			double phaseVal = vPhaseMat.at<double>(h, w);
-			if ((int)(grayVal / 20) % 2 == 0)
+			if ((int)(grayVal / vGrayPeriod) % 2 == 0)
 			{
 				if (phaseVal > (double)v_pixPeriod * 0.75)
 				{
@@ -364,38 +396,40 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 				{
 					vPhaseMat.at<double>(h, w) = phaseVal + v_pixPeriod;
 				}
+				vPhaseMat.at<double>(h, w) = vPhaseMat.at<double>(h, w) - 0.5 * v_pixPeriod;
 			}
 		}
 	}
 	vProjectorMat = vGrayMat + vPhaseMat;
 	int hGrayNum = 1 << GRAY_H_NUMDIGIT;
-	int hGrayPeriod = PROJECTOR_RESLINE / hGrayNum;
+	int hGrayPeriod = PROJECTOR_RESROW / hGrayNum;
 	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			double grayVal = hGrayMat.at<double>(h, w);
 			double phaseVal = hPhaseMat.at<double>(h, w);
-			if ((int)(grayVal / 20) % 2 == 0)
+			if ((int)(grayVal / hGrayPeriod) % 2 == 0)
 			{
-				if (phaseVal >(double)v_pixPeriod * 0.75)
+				if (phaseVal >(double)h_pixPeriod * 0.75)
 				{
-					hPhaseMat.at<double>(h, w) = phaseVal - v_pixPeriod;
+					hPhaseMat.at<double>(h, w) = phaseVal - h_pixPeriod;
 				}
 			}
 			else
 			{
-				if (phaseVal < (double)v_pixPeriod * 0.25)
+				if (phaseVal < (double)h_pixPeriod * 0.25)
 				{
-					hPhaseMat.at<double>(h, w) = phaseVal + v_pixPeriod;
+					hPhaseMat.at<double>(h, w) = phaseVal + h_pixPeriod;
 				}
+				hPhaseMat.at<double>(h, w) = hPhaseMat.at<double>(h, w) - 0.5 * h_pixPeriod;
 			}
 		}
 	}
 	hProjectorMat = hGrayMat + hPhaseMat;
 
-	myDebug.Show(vProjectorMat, 00, true, 0.5);
-	myDebug.Show(hProjectorMat, 00, true, 0.5);
+	/*myProjector.Show(vProjectorMat, 00, true, 0.5);
+	myProjector.Show(hProjectorMat, 00, true, 0.5);*/
 
 	// 将相机格点坐标转换为投影仪格点坐标
 	vector<Point2f>::iterator i;
@@ -405,8 +439,8 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 		Point2f pro;
 		int X = cam.x;
 		int Y = cam.y;
-		pro.x = vProjectorMat.at<ushort>(Y, X);
-		pro.y = hProjectorMat.at<ushort>(Y, X);
+		pro.x = vProjectorMat.at<double>(Y, X);
+		pro.y = hProjectorMat.at<double>(Y, X);
 		this->m_proPointTmp.push_back(pro);
 		//cout << "(" << X << "," << Y << ") -> (" << pro.x << "," << pro.y << ")" << endl;
 	}
@@ -415,6 +449,7 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	this->m_proMatDraw.create(800, 1280, CV_8UC1);
 	this->m_proMatDraw.setTo(0);
 	drawChessboardCorners(this->m_proMatDraw, Size(this->m_chessRow, this->m_chessLine), this->m_proPointTmp, true);
+	myProjector.Show(this->m_proMatDraw, 500, false, 0.5);
 
 	return status;
 }
@@ -432,7 +467,7 @@ bool CCalibration::PushChessPoint(int frameIdx)
 	// 存储本地图像
 	strstream ss;
 	string IdxtoStr;
-	ss << frameIdx;
+	ss << frameIdx + 1;
 	ss >> IdxtoStr;
 
 	// 相机图像
@@ -447,11 +482,11 @@ bool CCalibration::PushChessPoint(int frameIdx)
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "vGray", ".bmp");
 	proChessMat.Store(this->m_grayV, GRAY_V_NUMDIGIT * 2);
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "hGray", ".bmp");
-	proChessMat.Store(this->m_grayV, GRAY_H_NUMDIGIT * 2);
+	proChessMat.Store(this->m_grayH, GRAY_H_NUMDIGIT * 2);
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "vPhase", ".bmp");
-	proChessMat.Store(this->m_grayV, PHASE_NUMDIGIT);
+	proChessMat.Store(this->m_phaseV, PHASE_NUMDIGIT);
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "hPhase", ".bmp");
-	proChessMat.Store(this->m_grayV, PHASE_NUMDIGIT);
+	proChessMat.Store(this->m_phaseH, PHASE_NUMDIGIT);
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "ProMatDraw", ".bmp");
 	proChessMat.Store(&(this->m_proMatDraw), 1);
 

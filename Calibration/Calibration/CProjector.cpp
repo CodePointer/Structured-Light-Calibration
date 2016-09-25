@@ -25,9 +25,9 @@ bool CProjector::InitProjector()
 	namedWindow(this->m_winName, WINDOW_NORMAL);
 
 	// 调整窗口大小与位置
-	setWindowProperty(this->m_winName, CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 	resizeWindow(this->m_winName, this->m_resLine, this->m_resRow);
 	moveWindow(this->m_winName, PC_BIASLINE, PC_BIASROW);
+	setWindowProperty(this->m_winName, CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 
 	return true;
 }

@@ -66,7 +66,7 @@ bool CCamera::InitCamera()
 	this->nowDeviceNum = 1;
 
 	// 设置1号摄像机格式
-	status = HVSetResolution(this->DeviceHandle, RES_MODE1);
+	status = HVSetResolution(this->DeviceHandle, RES_MODE0);
 	HV_VERIFY(status);
 	HVSetOutputWindow(DeviceHandle, 0, 0, this->resLine, this->resRow);
 	HV_VERIFY(status);

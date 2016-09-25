@@ -27,7 +27,7 @@ bool CStorage::Store(Mat * pictures, int num)
 	{
 		std::strstream ss;
 		string IdxtoStr;
-		ss << num;
+		ss << i;
 		ss >> IdxtoStr;
 
 		status = imwrite(
