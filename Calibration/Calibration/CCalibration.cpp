@@ -14,6 +14,8 @@ CCalibration::CCalibration()
 	this->m_grayH = NULL;
 	this->m_phaseV = NULL;
 	this->m_phaseH = NULL;
+	this->xpro_mats_ = NULL;
+	this->ypro_mats_ = NULL;
 }
 
 // 析构函数。确保所有空间已经释放。
@@ -86,6 +88,8 @@ bool CCalibration::Init()
 	this->m_grayH = new Mat[GRAY_H_NUMDIGIT * 2];
 	this->m_phaseV = new Mat[PHASE_NUMDIGIT];
 	this->m_phaseH = new Mat[PHASE_NUMDIGIT];
+	this->xpro_mats_ = new Mat[CHESS_FRAME_NUMBER];
+	this->ypro_mats_ = new Mat[CHESS_FRAME_NUMBER];
 
 	return true;
 }
@@ -95,22 +99,22 @@ bool CCalibration::Calibrate()
 {
 	bool status = true;
 
-	// 判断参数是否合法
+	// Parameters checking
 	if ((this->m_sensor == NULL))
 		return false;
 	if ((this->m_decodeGray == NULL) || (this->m_decodePS == NULL))
 		return false;
 
-	// 初始化：清空三个Vector
+	// Initialize Vectors for calibration
 	std::vector<std::vector<cv::Point2f>>().swap(this->m_camPoint);
 	std::vector<std::vector<cv::Point2f>>().swap(this->m_proPoint);
 	std::vector<std::vector<cv::Point3f>>().swap(this->m_objPoint);
 	//CVisualization visual("Result", 100);
 
-	// 识别棋盘格，即填充上述三个Vector
+	// Chess Reco，Fill vectors above
 	for (int i = 0; i < this->m_chessNum; i++)
 	{
-		// 设定投影仪投影图案 empty
+		// set projected pattern as empty
 		this->m_sensor->LoadPatterns(1, this->m_patternPath, "empty", ".bmp");
 		this->m_sensor->SetProPicture(0);
 		cout << "Ready for collection. Press 'c'(continue) to continue" << endl;
@@ -127,19 +131,20 @@ bool CCalibration::Calibrate()
 		}
 		this->m_sensor->UnloadPatterns();
 
-		// 填充ObjPoint；
+		// Fill ObjPoint；
 		status = this->RecoChessPointObj(i);
 		printf("For %dth picture: ObjPoint finished.\n", i+1);
 
-		// 填充CamPoint；
+		// Fill CamPoint；
 		status = this->RecoChessPointCam(i);
 		printf("For %dth picture: CamPoint finished.\n", i+1);
 
-		// 填充ProPoint；
+		// Fill ProPoint；
 		status = this->RecoChessPointPro(i);
 		printf("For %dth picture: ProPoint finished.\n", i+1);
 
-		// 判断识别结果是否正确，如果正确则存储角点信息
+		// Make sure the recognition result is correct
+		// save the corner information and correspondence information
 		int key = 0;
 		key = myCamera.Show(this->m_chessMatDraw, 100, false, 0.5);
 		key = myProjector.Show(this->m_proMatDraw, 0, false, 0.5);
@@ -156,7 +161,7 @@ bool CCalibration::Calibrate()
 		}
 	}
 
-	// 标定部分
+	// Calibration
 	printf("Begin Calibrating.\n");
 	calibrateCamera(this->m_objPoint,
 		this->m_camPoint,
@@ -199,7 +204,7 @@ bool CCalibration::Calibrate()
 // 输出保存数据
 bool CCalibration::Result()
 {
-	FileStorage fs("CalibrationResult.yml", FileStorage::WRITE);
+	FileStorage fs("CalibrationResult.xml", FileStorage::WRITE);
 	cout << "CamMat" << endl;
 	fs << "CamMat" << this->m_camMatrix;
 	cout << this->m_camMatrix << endl;
@@ -215,7 +220,7 @@ bool CCalibration::Result()
 	cout << this->m_T << endl;
 	fs.release();
 
-	cout << "Calibration Finished. Data was stored at <CalibrationResult.yml>." << endl;
+	cout << "Calibration Finished. Data was stored at <CalibrationResult.xml>." << endl;
 
 	return true;
 }
@@ -308,17 +313,25 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	Mat hPhaseMat;
 	Mat vProjectorMat;
 	Mat hProjectorMat;
+	int kMultiCollectNum = 5;
+	Mat tmp_mul_collect;
+	Mat temp_total_mat;
+	temp_total_mat.create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 
 	// vGray
 	this->m_sensor->LoadPatterns(GRAY_V_NUMDIGIT * 2, this->m_patternPath, "vGray", ".bmp");
 	this->m_decodeGray->SetNumDigit(GRAY_V_NUMDIGIT, true);
 	this->m_decodeGray->SetMatFileName(this->m_patternPath, "vGrayCode.txt");
-	for (int i = 0; i < GRAY_V_NUMDIGIT * 2; i++)		// Projector
-	{
+	for (int i = 0; i < GRAY_V_NUMDIGIT * 2; i++) {		// Projector
 		this->m_sensor->SetProPicture(i);
-		tempMat = this->m_sensor->GetCamPicture();
-		this->m_decodeGray->SetMat(i, tempMat);
-		tempMat.copyTo(this->m_grayV[i]);
+		temp_total_mat.setTo(0);
+		for (int k = 0; k < kMultiCollectNum; k++) {
+			tmp_mul_collect = this->m_sensor->GetCamPicture();
+			tmp_mul_collect.convertTo(tempMat, CV_64FC1);
+			temp_total_mat += tempMat / kMultiCollectNum;
+		}
+		temp_total_mat.convertTo(this->m_grayV[i], CV_8UC1);
+		this->m_decodeGray->SetMat(i, this->m_grayV[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodeGray->Decode();
@@ -331,9 +344,14 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	for (int i = 0; i < GRAY_H_NUMDIGIT * 2; i++)		// Projector
 	{
 		this->m_sensor->SetProPicture(i);
-		tempMat = this->m_sensor->GetCamPicture();
-		this->m_decodeGray->SetMat(i, tempMat);
-		tempMat.copyTo(this->m_grayH[i]);
+		temp_total_mat.setTo(0);
+		for (int k = 0; k < kMultiCollectNum; k++) {
+			tmp_mul_collect = this->m_sensor->GetCamPicture();
+			tmp_mul_collect.convertTo(tempMat, CV_64FC1);
+			temp_total_mat += tempMat / kMultiCollectNum;
+		}
+		temp_total_mat.convertTo(this->m_grayH[i], CV_8UC1);
+		this->m_decodeGray->SetMat(i, this->m_grayH[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodeGray->Decode();
@@ -346,9 +364,14 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	for (int i = 0; i < PHASE_NUMDIGIT; i++)
 	{
 		this->m_sensor->SetProPicture(i);
-		tempMat = this->m_sensor->GetCamPicture();
-		this->m_decodePS->SetMat(i, tempMat);
-		tempMat.copyTo(this->m_phaseV[i]);
+		temp_total_mat.setTo(0);
+		for (int k = 0; k < kMultiCollectNum; k++) {
+			tmp_mul_collect = this->m_sensor->GetCamPicture();
+			tmp_mul_collect.convertTo(tempMat, CV_64FC1);
+			temp_total_mat += tempMat / kMultiCollectNum;
+		}
+		temp_total_mat.convertTo(this->m_phaseV[i], CV_8UC1);
+		this->m_decodePS->SetMat(i, this->m_phaseV[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodePS->Decode();
@@ -361,9 +384,14 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	for (int i = 0; i < PHASE_NUMDIGIT; i++)
 	{
 		this->m_sensor->SetProPicture(i);
-		tempMat = this->m_sensor->GetCamPicture();
-		this->m_decodePS->SetMat(i, tempMat);
-		tempMat.copyTo(this->m_phaseH[i]);
+		temp_total_mat.setTo(0);
+		for (int k = 0; k < kMultiCollectNum; k++) {
+			tmp_mul_collect = this->m_sensor->GetCamPicture();
+			tmp_mul_collect.convertTo(tempMat, CV_64FC1);
+			temp_total_mat += tempMat / kMultiCollectNum;
+		}
+		temp_total_mat.convertTo(this->m_phaseH[i], CV_8UC1);
+		this->m_decodePS->SetMat(i, this->m_phaseH[i]);
 	}
 	this->m_sensor->UnloadPatterns();
 	this->m_decodePS->Decode();
@@ -428,6 +456,9 @@ bool CCalibration::RecoChessPointPro(int frameIdx)
 	}
 	hProjectorMat = hGrayMat + hPhaseMat;
 
+	this->xpro_mats_[frameIdx] = vProjectorMat;
+	this->ypro_mats_[frameIdx] = hProjectorMat;
+
 	/*myProjector.Show(vProjectorMat, 00, true, 0.5);
 	myProjector.Show(hProjectorMat, 00, true, 0.5);*/
 
@@ -472,13 +503,20 @@ bool CCalibration::PushChessPoint(int frameIdx)
 
 	// 相机图像
 	CStorage camChessMat;
-	camChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "CameraMat", ".bmp");
+	camChessMat.SetMatFileName("RecoChessPoint/", "cam_mat" + IdxtoStr, ".png");
 	camChessMat.Store(&(this->m_chessMat), 1);
-	camChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "CameraMatDraw", ".bmp");
+	camChessMat.SetMatFileName("RecoChessPoint/", "corner_res" + IdxtoStr, ".png");
 	camChessMat.Store(&(this->m_chessMatDraw), 1);
 
-	// 投影仪图像
-	CStorage proChessMat;
+	// 投影仪坐标
+	FileStorage fs;
+	fs.open("RecoChessPoint/xpro_mat" + IdxtoStr + ".xml", FileStorage::WRITE);
+	fs.write("xpro_mat", this->xpro_mats_[frameIdx]);
+	fs.release();
+	fs.open("RecoChessPoint/ypro_mat" + IdxtoStr + ".xml", FileStorage::WRITE);
+	fs.write("ypro_mat", this->ypro_mats_[frameIdx]);
+	fs.release();
+	/*CStorage proChessMat;
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "vGray", ".bmp");
 	proChessMat.Store(this->m_grayV, GRAY_V_NUMDIGIT * 2);
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "hGray", ".bmp");
@@ -488,7 +526,7 @@ bool CCalibration::PushChessPoint(int frameIdx)
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "hPhase", ".bmp");
 	proChessMat.Store(this->m_phaseH, PHASE_NUMDIGIT);
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "ProMatDraw", ".bmp");
-	proChessMat.Store(&(this->m_proMatDraw), 1);
+	proChessMat.Store(&(this->m_proMatDraw), 1);*/
 
 	return status;
 }

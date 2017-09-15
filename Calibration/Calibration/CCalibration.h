@@ -33,6 +33,8 @@ private:
 	Mat * m_grayH;
 	Mat * m_phaseV;
 	Mat * m_phaseH;
+	Mat * xpro_mats_;
+	Mat * ypro_mats_;
 	Mat m_chessMatDraw;
 	Mat m_proMatDraw;
 	//∆Â≈Ã∏ÒÀ≥–Ú±‡∫≈
