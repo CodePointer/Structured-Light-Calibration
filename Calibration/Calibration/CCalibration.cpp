@@ -195,6 +195,7 @@ bool CCalibration::Calibrate()
 		this->m_T,
 		this->m_E,
 		this->m_F,
+		256,
 		TermCriteria(TermCriteria::COUNT + TermCriteria::EPS, 300, 1e-16));
 	printf("Finish stereo Calibration.\n");
 
@@ -511,10 +512,10 @@ bool CCalibration::PushChessPoint(int frameIdx)
 	// Í¶Ó°ÒÇ×ø±ê
 	FileStorage fs;
 	fs.open("RecoChessPoint/xpro_mat" + IdxtoStr + ".xml", FileStorage::WRITE);
-	fs.write("xpro_mat", this->xpro_mats_[frameIdx]);
+	fs << "xpro_mat" << this->xpro_mats_[frameIdx];
 	fs.release();
 	fs.open("RecoChessPoint/ypro_mat" + IdxtoStr + ".xml", FileStorage::WRITE);
-	fs.write("ypro_mat", this->ypro_mats_[frameIdx]);
+	fs << "ypro_mat" << this->ypro_mats_[frameIdx];
 	fs.release();
 	/*CStorage proChessMat;
 	proChessMat.SetMatFileName("RecoChessPoint/" + IdxtoStr + "/", "vGray", ".bmp");

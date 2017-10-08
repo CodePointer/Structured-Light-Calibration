@@ -23,5 +23,5 @@ const bool VISUAL_DEBUG = false;
 
 // 棋盘格相关参数
 const int CHESS_FRAME_NUMBER = 15;
-const int CHESS_LINE = 13;
-const int CHESS_ROW = 8;
+const int CHESS_LINE = 8;
+const int CHESS_ROW = 6;
