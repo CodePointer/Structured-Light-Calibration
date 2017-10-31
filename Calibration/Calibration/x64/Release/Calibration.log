@@ -1,7 +1,17 @@
-﻿  StaticParameters.cpp
+﻿  CCalibration.cpp
+C:\Programming\opencv\build\include\opencv2/core/mat.hpp(1965): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\Programming\opencv\build\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\Programming\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\Programming\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+CCalibration.cpp(241): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+CCalibration.cpp(274): warning C4800: “int”: 将值强制为布尔值“true”或“false”(性能警告)
+CCalibration.cpp(475): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+CCalibration.cpp(476): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+CCalibration.cpp(477): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+CCalibration.cpp(478): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
   正在生成代码
-  1 of 763 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+  6 of 763 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    32 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   Calibration.vcxproj -> E:\Github\Structured-Light-Calibration\Calibration\x64\Release\Calibration.exe

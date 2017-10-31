@@ -115,7 +115,7 @@ bool CCalibration::Calibrate()
 	for (int i = 0; i < this->m_chessNum; i++)
 	{
 		// set projected pattern as empty
-		this->m_sensor->LoadPatterns(1, this->m_patternPath, "empty", ".bmp");
+		this->m_sensor->LoadPatterns(1, this->m_patternPath, "wait", ".bmp");
 		this->m_sensor->SetProPicture(0);
 		cout << "Ready for collection. Press 'c'(continue) to continue" << endl;
 		while (true)
@@ -129,6 +129,9 @@ bool CCalibration::Calibrate()
 				break;
 			}
 		}
+		this->m_sensor->UnloadPatterns();
+		this->m_sensor->LoadPatterns(1, this->m_patternPath, "empty", ".bmp");
+		this->m_sensor->SetProPicture(0);
 		this->m_sensor->UnloadPatterns();
 
 		// Fill ObjPoint£»
